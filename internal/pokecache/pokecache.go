@@ -7,8 +7,8 @@ import (
 
 // Структура для хранения данных кэша
 type cacheEntry struct {
-	createdAt time.Time // Время создания записи
-	val       []byte    // Данные, которые мы кэшируем
+	CreatedAt time.Time // Время создания записи
+	Val       []byte    // Данные, которые мы кэшируем
 }
 
 // Структура кэша для хранения записей
@@ -18,10 +18,10 @@ type Cache struct {
 	interval time.Duration // Время жизни кэшированных данных
 }
 
-func NewCache() *Cache {
+func NewCache(interval time.Duration) *Cache {
 	c := &Cache{
 		data:     make(map[string]cacheEntry),
-		interval: time.Duration(10),
+		interval: interval,
 	}
 	c.reapLoop()
 	return c
@@ -37,18 +37,27 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
 	if entry, ok := c.data[key]; ok {
 		c.mu.Unlock()
-		return entry.val, true
+		return entry.Val, true
 	} else {
+		c.mu.Unlock()
 		return nil, false
 	}
+
+}
+
+func (c *Cache) GetAll() map[string]cacheEntry {
+	c.mu.Lock()
+	result := c.data
+	c.mu.Unlock()
+	return result
 }
 
 func (c *Cache) reapLoop() {
 	go func() {
-		for range time.Tick(c.interval) {
+		for range time.Tick(1 * time.Millisecond) {
 			c.mu.Lock()
 			for key, entry := range c.data {
-				if time.Since(entry.createdAt) > c.interval {
+				if time.Since(entry.CreatedAt) > c.interval {
 					delete(c.data, key)
 				}
 			}
