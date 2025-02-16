@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"bootdev/internal/commands"
+	"testing"
+)
 
 func TestCleanInput(t *testing.T) {
 	cases := []struct {
@@ -19,7 +22,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := cleanInput(c.input)
+		actual := commands.CleanInput(c.input)
 		if len(actual) != len(c.expected) {
 			t.Errorf("Test input Failed - expected %d words, got %d", len(c.expected), len(actual))
 			//return

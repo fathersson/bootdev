@@ -35,14 +35,11 @@ func (c *Cache) Add(key string, val []byte) {
 
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	if entry, ok := c.data[key]; ok {
-		c.mu.Unlock()
 		return entry.Val, true
-	} else {
-		c.mu.Unlock()
-		return nil, false
 	}
-
+	return nil, false
 }
 
 func (c *Cache) GetAll() map[string]cacheEntry {
